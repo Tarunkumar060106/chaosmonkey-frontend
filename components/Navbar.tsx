@@ -89,13 +89,13 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-4">
-          <Link
-            href="/auth/callback"
+          <a
+            href="http://localhost:8000/auth/github/login"
             className="bg-amber-500 text-black text-[11px] font-black uppercase px-6 py-2.5 tracking-widest hover:bg-white transition-all industrial-border hover:shadow-lg hover:shadow-amber-500/30 hover:scale-105 flex items-center gap-2"
           >
             <Github className="w-4 h-4" />
             <span>Get Started</span>
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -131,13 +131,13 @@ const Navbar: React.FC = () => {
             </a>
           ))}
           <div className="flex flex-col gap-3 px-4 pt-4 border-t border-amber-500/10">
-            <Link
-              href="/auth/callback"
+            <a
+              href="http://localhost:8000/auth/github/login"
               className="bg-amber-500 text-black text-[11px] font-black uppercase px-6 py-2.5 tracking-widest hover:bg-white transition-all industrial-border text-center flex items-center justify-center gap-2"
             >
               <Github className="w-4 h-4" />
               <span>Get Started</span>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

@@ -30,13 +30,13 @@ const Hero: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-          <Link
-            href="/auth/callback"
+          <a
+            href="http://localhost:8000/auth/github/login"
             className="w-full sm:w-auto bg-amber-500 text-black px-10 py-5 font-black text-sm uppercase tracking-widest hover:bg-white transition-all amber-glow hover:scale-105 flex items-center justify-center gap-3"
           >
             <Github className="w-5 h-5" />
             Connect GitHub to Start
-          </Link>
+          </a>
           <Link
             href="/dashboard"
             className="w-full sm:w-auto border border-white/10 text-white px-10 py-5 font-bold text-sm uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center gap-3"

@@ -6,13 +6,18 @@ import {
   ShieldCheck,
   Terminal,
   ArrowRight,
+  XCircle,
 } from "lucide-react";
 
 interface AuthCallbackProps {
   onComplete: () => void;
+  status?: "loading" | "success" | "error";
 }
 
-const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
+const AuthCallback: React.FC<AuthCallbackProps> = ({
+  onComplete,
+  status = "loading",
+}) => {
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -27,7 +32,20 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
     "Session established. Token expires in 24h.",
   ];
 
+  const errorLogs = [
+    "POST /auth/github/callback HTTP/1.1",
+    "Handshaking with api.github.com...",
+    "ERROR: Authorization failed",
+    "Redirecting to home...",
+  ];
+
   useEffect(() => {
+    if (status === "error") {
+      setLogs(errorLogs);
+      setStep(errorLogs.length);
+      return;
+    }
+
     if (step < protocolLogs.length) {
       const timer = setTimeout(
         () => {
@@ -38,7 +56,7 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
       );
       return () => clearTimeout(timer);
     }
-  }, [step]);
+  }, [step, status]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[#080808]">
@@ -51,7 +69,9 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-8">
             <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none">
-              {step < protocolLogs.length ? (
+              {status === "error" ? (
+                <XCircle className="w-6 h-6 text-red-500" />
+              ) : step < protocolLogs.length ? (
                 <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
               ) : (
                 <CheckCircle2 className="w-6 h-6 text-cyan-400" />
@@ -59,9 +79,11 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
             </div>
             <div>
               <h2 className="text-white font-black uppercase italic tracking-tighter text-2xl">
-                {step < protocolLogs.length
-                  ? "Authorizing Identity"
-                  : "Identity Verified"}
+                {status === "error"
+                  ? "Authorization Failed"
+                  : step < protocolLogs.length
+                    ? "Authorizing Identity"
+                    : "Identity Verified"}
               </h2>
               <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
                 OAuth_Flow // GitHub_Service_Mesh
@@ -77,7 +99,13 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
             {logs.map((log, i) => (
               <div
                 key={i}
-                className={`flex gap-3 ${log.includes("success") || log.includes("Verified") ? "text-cyan-400" : "text-gray-400"}`}
+                className={`flex gap-3 ${
+                  log.includes("ERROR")
+                    ? "text-red-400 font-bold"
+                    : log.includes("success") || log.includes("Verified")
+                      ? "text-cyan-400"
+                      : "text-gray-400"
+                }`}
               >
                 <span className="text-amber-500/30">
                   [{new Date().toLocaleTimeString()}]
@@ -85,7 +113,7 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onComplete }) => {
                 <span>{log}</span>
               </div>
             ))}
-            {step < protocolLogs.length && (
+            {step < protocolLogs.length && status !== "error" && (
               <div className="w-2 h-4 bg-amber-500 animate-pulse inline-block align-middle ml-1" />
             )}
           </div>

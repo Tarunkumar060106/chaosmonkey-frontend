@@ -1,41 +1,67 @@
 import React from "react";
-import {
-  Network,
-  Cpu,
-  BarChart3,
-  Database,
-  ShieldAlert,
-  LayoutGrid,
-} from "lucide-react";
 
-const features = [
+const useCases = [
   {
-    title: "Isolation Protocols",
+    title: "Understand system failure modes",
     description:
-      "Execute deep network partitioning to observe cluster consensus under duress.",
-    icon: <Network className="w-6 h-6" />,
-    color: "text-amber-500",
+      "See what breaks when a service, database, or dependency fails.",
   },
   {
-    title: "Thermal Stress",
-    description:
-      "Force recursive CPU loops to test vertical pod autoscaling responsiveness.",
-    icon: <Cpu className="w-6 h-6" />,
-    color: "text-orange-500",
+    title: "Validate resilience before production",
+    description: "Prove that retries, fallbacks, and timeouts actually work.",
   },
   {
-    title: "Latent Corruption",
+    title: "Find hidden service coupling",
     description:
-      "Introduce silent bit-rot into cold storage to validate CRC check pipelines.",
-    icon: <Database className="w-6 h-6" />,
-    color: "text-rose-500",
+      "Detect synchronous dependencies and tight coupling across services.",
   },
   {
-    title: "Blast Safeguards",
+    title: "Prevent cascading failures",
+    description: "Identify where one failure can trigger a chain reaction.",
+  },
+  {
+    title: "Generate root-cause explanations automatically",
+    description: "Get plain-English explanations of why failures happen.",
+  },
+  {
+    title: "Train engineers for real outages",
+    description: "Safely simulate incidents without impacting users.",
+  },
+  {
+    title: "Improve system design early",
     description:
-      "Autonomous kill-switches halt experiments if global error rates exceed 0.5%.",
-    icon: <ShieldAlert className="w-6 h-6" />,
-    color: "text-cyan-500",
+      "Catch architectural weaknesses during development, not after launch.",
+  },
+  {
+    title: "Reduce on-call stress",
+    description: "Fewer unknowns mean fewer 3 a.m. incidents.",
+  },
+  {
+    title: "Support SRE and reliability workflows",
+    description: "Run repeatable chaos experiments with measurable outcomes.",
+  },
+  {
+    title: "Enable chaos engineering for regular developers",
+    description: "No deep infra or SRE knowledge required.",
+  },
+  {
+    title: "Run pre-release resilience checks",
+    description:
+      "Block deployments if resilience drops below a safe threshold.",
+  },
+  {
+    title: "Create postmortems faster",
+    description: "Use experiment data to explain outages clearly.",
+  },
+  {
+    title: "Track reliability over time",
+    description:
+      "Measure whether the system is becoming more or less resilient.",
+  },
+  {
+    title: "Teach system design through practice",
+    description:
+      "Learn how distributed systems fail by observing real behavior.",
   },
 ];
 
@@ -43,47 +69,50 @@ const Features: React.FC = () => {
   return (
     <section id="features" className="py-32 px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-20">
-          <div className="lg:col-span-7">
-            <h2 className="text-5xl md:text-7xl font-black text-white uppercase italic leading-none mb-6">
-              Built for <br />{" "}
-              <span className="text-amber-500">Unstoppable</span> Systems.
-            </h2>
-          </div>
-          <div className="lg:col-span-5">
-            <p className="text-gray-500 font-medium leading-relaxed">
-              Infrastructure isn't reliable until it's been tested to its limit.
-              ChaosMonkey provides the tactical tools to find the breaking point
-              before your users do.
-            </p>
-          </div>
+        <div className="text-center mb-16">
+          <h2 className="text-5xl md:text-7xl font-black text-white uppercase italic leading-none mb-6">
+            What People Use <span className="text-amber-500">ChaosMonkey</span>{" "}
+            For
+          </h2>
+          <p className="text-gray-500 font-medium leading-relaxed max-w-3xl mx-auto">
+            Practical, software-first resilience testing that exposes weak links
+            before users feel them.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((f, i) => (
-            <div
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {useCases.map((item, i) => (
+            <details
               key={i}
-              className="group p-8 bg-[#0c0c0c] industrial-border hover:bg-amber-500 transition-all duration-300"
+              className="group bg-[#0c0c0c] industrial-border p-6"
             >
-              <div
-                className={`${f.color} mb-12 group-hover:text-black transition-colors`}
-              >
-                {f.icon}
-              </div>
-              <h3 className="text-xl font-black text-white group-hover:text-black mb-4 uppercase italic tracking-tighter">
-                {f.title}
-              </h3>
-              <p className="text-gray-500 group-hover:text-black/70 text-sm leading-relaxed mb-8">
-                {f.description}
-              </p>
-              <div className="text-[10px] font-black uppercase tracking-widest text-amber-500 group-hover:text-black flex items-center gap-2">
-                Init_Doc{" "}
-                <span className="group-hover:translate-x-2 transition-transform">
-                  →
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-6">
+                <span className="text-lg font-black text-white uppercase italic tracking-tight">
+                  {item.title}
                 </span>
-              </div>
-            </div>
+                <span className="text-amber-500 text-xl font-black transition-transform group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="text-gray-500 text-sm leading-relaxed mt-4">
+                {item.description}
+              </p>
+            </details>
           ))}
+        </div>
+
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="bg-black/60 border border-amber-500/20 p-8 text-center industrial-border">
+            <div className="text-amber-500 text-xs font-black uppercase tracking-[0.4em] mb-4">
+              Critical Question
+            </div>
+            <div className="text-2xl md:text-3xl font-black text-white italic">
+              "What breaks if this fails?"
+            </div>
+            <div className="text-gray-500 mt-3">
+              Answer with evidence, not guesses.
+            </div>
+          </div>
         </div>
       </div>
     </section>

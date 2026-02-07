@@ -2,10 +2,10 @@ import React from "react";
 
 const Stats: React.FC = () => {
   const stats = [
-    { label: "Experiments Logged", value: "1.2M+" },
-    { label: "Target Resilience", value: "99.99%" },
-    { label: "Threats Nullified", value: "14.5k" },
-    { label: "Recovery Rate", value: "2.4x" },
+    { label: "Experiments Logged", value: "0" },
+    { label: "Target Resilience", value: "0" },
+    { label: "Threats Nullified", value: "0" },
+    { label: "Recovery Rate", value: "0" },
   ];
 
   return (

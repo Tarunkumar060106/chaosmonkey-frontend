@@ -1,58 +1,61 @@
 "use client";
 
-import { LogOut, Settings, User } from "lucide-react";
+import { Shield, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface DashboardHeaderProps {
   username?: string;
+  avatarUrl?: string;
   loading?: boolean;
 }
 
-export default function DashboardHeader({
-  username,
-  loading = false,
-}: DashboardHeaderProps) {
+export default function DashboardHeader({ username, avatarUrl, loading }: DashboardHeaderProps) {
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleSignOut = () => {
     localStorage.removeItem("github_token");
     router.push("/");
   };
 
   return (
-    <div className="border-b border-amber-500/10 bg-[#080808] sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-2">
-              Control Console
-            </h1>
-            {loading ? (
-              <div className="h-4 w-32 bg-white/5 animate-pulse" />
-            ) : (
-              <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                Operator:{" "}
-                <span className="text-amber-500">
-                  {username || "Anonymous"}
-                </span>
-              </p>
-            )}
+    <header style={{
+      borderBottom: "1px solid var(--ink-subtle)",
+      background: "rgba(9, 9, 11, 0.85)",
+      backdropFilter: "blur(12px)",
+    }}>
+      <div className="max-container-lg flex items-center justify-between h-14">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-md flex items-center justify-center"
+               style={{ background: "var(--ink-gold-dim)", border: "1px solid rgba(226, 192, 68, 0.2)" }}>
+            <Shield className="w-4 h-4" style={{ color: "var(--ink-gold)" }} />
           </div>
+          <span className="text-sm font-semibold tracking-tight" style={{ color: "var(--ink-white)" }}>
+            ChaosMonkey
+          </span>
+        </a>
 
-          <div className="flex items-center gap-3">
-            <button className="p-3 border border-white/10 text-gray-400 hover:text-white hover:border-amber-500/20 transition-all">
-              <Settings className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-3 border border-white/10 text-gray-400 hover:text-red-400 hover:border-red-500/20 transition-all text-[10px] font-bold uppercase tracking-widest"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Disconnect</span>
-            </button>
-          </div>
+        {/* Right */}
+        <div className="flex items-center gap-4">
+          {loading ? (
+            <div className="skeleton" style={{ width: "80px", height: "24px" }} />
+          ) : username ? (
+            <div className="flex items-center gap-3">
+              {avatarUrl && (
+                <img src={avatarUrl} alt={username}
+                     className="w-6 h-6 rounded-full"
+                     style={{ border: "1px solid var(--ink-muted)" }} />
+              )}
+              <span style={{ color: "var(--ink-mid)", fontSize: "0.8125rem" }}>
+                {username}
+              </span>
+              <button onClick={handleSignOut} className="btn btn-ghost" style={{ padding: "6px 10px" }}>
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
-    </div>
+    </header>
   );
 }

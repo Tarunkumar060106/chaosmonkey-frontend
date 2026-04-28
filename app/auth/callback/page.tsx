@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import AuthCallback from "@/components/AuthCallback";
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
 
   useEffect(() => {
     const token = searchParams.get("access_token");
@@ -23,15 +21,12 @@ export default function AuthCallbackPage() {
     }
 
     if (token) {
-      // Store GitHub token (MVP-safe)
       localStorage.setItem("github_token", token);
       setStatus("success");
-      // Give the animation time to complete before redirecting
       setTimeout(() => {
         router.push("/dashboard");
       }, 3000);
     } else {
-      // No token and no error - might be loading or invalid state
       setStatus("error");
       setTimeout(() => router.push("/"), 3000);
     }
@@ -44,5 +39,19 @@ export default function AuthCallbackPage() {
       }}
       status={status}
     />
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center"
+           style={{ background: "var(--ink-black)" }}>
+        <div className="w-3 h-3 rounded-full loading-dot"
+             style={{ background: "var(--ink-gold)" }} />
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }

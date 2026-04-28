@@ -16,22 +16,19 @@ export default function EmptyState({
   onAction,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-      <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-none mb-6">
-        <Icon className="w-12 h-12 text-amber-500" />
+    <div className="flex flex-col items-center justify-center py-20 animate-in">
+      <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+           style={{ background: "var(--ink-subtle)", border: "1px solid var(--ink-muted)" }}>
+        <Icon className="w-6 h-6" style={{ color: "var(--ink-dim)" }} />
       </div>
-
-      <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-3">
+      <h3 className="text-headline mb-2" style={{ fontSize: "1.125rem" }}>
         {title}
       </h3>
-
-      <p className="text-gray-500 text-sm max-w-md mb-8">{description}</p>
-
+      <p className="mb-6 text-center max-w-sm" style={{ color: "var(--ink-mid)", fontSize: "0.875rem" }}>
+        {description}
+      </p>
       {actionLabel && onAction && (
-        <button
-          onClick={onAction}
-          className="bg-amber-500 text-black px-8 py-3 font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all"
-        >
+        <button onClick={onAction} className="btn btn-secondary">
           {actionLabel}
         </button>
       )}

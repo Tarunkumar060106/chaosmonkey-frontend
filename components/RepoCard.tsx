@@ -1,19 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { cloneRepo } from "../services/api";
-import { Repository, CloneStatus } from "@/types";
-import {
-  Lock,
-  Globe,
-  GitBranch,
-  Download,
-  CheckCircle2,
-  Loader2,
-  AlertCircle,
-  Play,
-  FileCode,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Repository } from "@/types";
+import { Lock, Globe, GitBranch, ArrowRight, FileCode } from "lucide-react";
 
 interface RepoCardProps {
   repo: Repository;
@@ -21,171 +10,119 @@ interface RepoCardProps {
 }
 
 export default function RepoCard({ repo, viewMode = "grid" }: RepoCardProps) {
-  const [cloneStatus, setCloneStatus] = useState<CloneStatus>({
-    status: "idle",
-  });
+  const router = useRouter();
 
-  const handleClone = async () => {
-    setCloneStatus({ status: "cloning" });
-    try {
-      const result = await cloneRepo(repo.clone_url);
-      setCloneStatus({ status: "done", message: result.path });
-    } catch (error) {
-      setCloneStatus({
-        status: "error",
-        message: "Failed to clone repository",
-      });
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (cloneStatus.status) {
-      case "cloning":
-        return <Loader2 className="w-4 h-4 animate-spin text-amber-500" />;
-      case "done":
-        return <CheckCircle2 className="w-4 h-4 text-cyan-400" />;
-      case "error":
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <Download className="w-4 h-4" />;
-    }
-  };
-
-  const getStatusText = () => {
-    switch (cloneStatus.status) {
-      case "cloning":
-        return "Importing...";
-      case "done":
-        return "Imported";
-      case "error":
-        return "Retry";
-      default:
-        return "Import";
-    }
+  const handleAnalyze = () => {
+    // One-step: navigate directly to explore page with clone_url
+    router.push(`/explore?url=${encodeURIComponent(repo.clone_url)}`);
   };
 
   if (viewMode === "list") {
     return (
-      <div className="industrial-border bg-[#0c0c0c] p-4 hover:bg-[#111] transition-all group">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-none">
-              <FileCode className="w-5 h-5 text-amber-500" />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-white font-bold text-sm truncate">
-                  {repo.full_name}
-                </h3>
-                {repo.private ? (
-                  <Lock className="w-3 h-3 text-gray-500" />
-                ) : (
-                  <Globe className="w-3 h-3 text-gray-500" />
-                )}
-              </div>
-              {repo.description && (
-                <p className="text-gray-500 text-xs truncate">
-                  {repo.description}
-                </p>
+      <div className="surface-card p-4 flex items-center justify-between gap-4 group"
+           style={{ borderRadius: "var(--radius-md)" }}>
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="w-9 h-9 rounded-md flex items-center justify-center"
+               style={{ background: "var(--ink-gold-dim)", border: "1px solid rgba(226, 192, 68, 0.15)", flexShrink: 0 }}>
+            <FileCode className="w-4 h-4" style={{ color: "var(--ink-gold)" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span style={{ color: "var(--ink-white)", fontWeight: 600, fontSize: "0.875rem" }}
+                    className="truncate">
+                {repo.full_name}
+              </span>
+              {repo.private ? (
+                <Lock className="w-3 h-3" style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
+              ) : (
+                <Globe className="w-3 h-3" style={{ color: "var(--ink-dim)", flexShrink: 0 }} />
               )}
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {repo.language && (
-              <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">
-                {repo.language}
-              </span>
-            )}
-
-            <button
-              onClick={handleClone}
-              disabled={cloneStatus.status === "cloning"}
-              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${
-                cloneStatus.status === "done"
-                  ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                  : cloneStatus.status === "error"
-                    ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
-                    : "bg-amber-500 text-black hover:bg-white border border-amber-500"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {getStatusIcon()}
-              {getStatusText()}
-            </button>
-
-            {cloneStatus.status === "done" && (
-              <button className="p-2 border border-white/10 text-gray-400 hover:text-amber-500 hover:border-amber-500/20 transition-all">
-                <Play className="w-4 h-4" />
-              </button>
+            {repo.description && (
+              <p className="truncate" style={{ color: "var(--ink-dim)", fontSize: "0.8125rem" }}>
+                {repo.description}
+              </p>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {repo.language && (
+            <span className="text-code" style={{ fontSize: "0.75rem", color: "var(--ink-dim)" }}>
+              {repo.language}
+            </span>
+          )}
+          <button onClick={handleAnalyze} className="btn btn-primary"
+                  style={{ padding: "7px 16px", fontSize: "0.75rem" }}>
+            Analyze
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="industrial-border bg-[#0c0c0c] p-6 hover:bg-[#111] transition-all group">
+    <div className="surface-card p-6 flex flex-col group">
+      {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-none">
-          <FileCode className="w-6 h-6 text-amber-500" />
+        <div className="w-10 h-10 rounded-md flex items-center justify-center"
+             style={{ background: "var(--ink-gold-dim)", border: "1px solid rgba(226, 192, 68, 0.15)" }}>
+          <FileCode className="w-5 h-5" style={{ color: "var(--ink-gold)" }} />
         </div>
-        <div className="flex items-center gap-2">
-          {repo.private ? (
-            <Lock className="w-4 h-4 text-gray-500" />
-          ) : (
-            <Globe className="w-4 h-4 text-gray-500" />
-          )}
-        </div>
+        {repo.private ? (
+          <Lock className="w-3.5 h-3.5" style={{ color: "var(--ink-dim)" }} />
+        ) : (
+          <Globe className="w-3.5 h-3.5" style={{ color: "var(--ink-dim)" }} />
+        )}
       </div>
 
-      <h3 className="text-white font-bold text-lg mb-2 truncate group-hover:text-amber-500 transition-colors">
+      {/* Name */}
+      <h3 className="mb-1.5 truncate" style={{
+        color: "var(--ink-white)",
+        fontWeight: 600,
+        fontSize: "1rem",
+        transition: "color 200ms var(--ease-out)",
+      }}>
         {repo.name}
       </h3>
 
-      {repo.description && (
-        <p className="text-gray-500 text-sm mb-4 line-clamp-2 h-10">
+      {/* Description */}
+      {repo.description ? (
+        <p className="mb-4 line-clamp-2" style={{
+          color: "var(--ink-dim)",
+          fontSize: "0.8125rem",
+          lineHeight: "1.5",
+          minHeight: "2.5em",
+        }}>
           {repo.description}
         </p>
+      ) : (
+        <div style={{ minHeight: "2.5em", marginBottom: "16px" }} />
       )}
 
-      <div className="flex items-center gap-4 mb-4 text-[10px] font-mono text-gray-600">
+      {/* Meta */}
+      <div className="flex items-center gap-4 mb-5">
         {repo.language && (
-          <span className="uppercase tracking-wider">{repo.language}</span>
+          <span className="text-code" style={{ fontSize: "0.75rem", color: "var(--ink-dim)" }}>
+            {repo.language}
+          </span>
         )}
         <div className="flex items-center gap-1">
-          <GitBranch className="w-3 h-3" />
-          <span>{repo.default_branch || "main"}</span>
+          <GitBranch className="w-3 h-3" style={{ color: "var(--ink-dim)" }} />
+          <span className="text-code" style={{ fontSize: "0.75rem", color: "var(--ink-dim)" }}>
+            {repo.default_branch || "main"}
+          </span>
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleClone}
-          disabled={cloneStatus.status === "cloning"}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
-            cloneStatus.status === "done"
-              ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-              : cloneStatus.status === "error"
-                ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
-                : "bg-amber-500 text-black hover:bg-white border border-amber-500"
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          {getStatusIcon()}
-          {getStatusText()}
-        </button>
-
-        {cloneStatus.status === "done" && (
-          <button className="p-2.5 border border-white/10 text-gray-400 hover:text-amber-500 hover:border-amber-500/20 transition-all">
-            <Play className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {cloneStatus.message && cloneStatus.status === "error" && (
-        <p className="text-red-400 text-xs mt-2">{cloneStatus.message}</p>
-      )}
+      {/* Action — one step, no import needed */}
+      <button onClick={handleAnalyze}
+              className="btn btn-primary w-full"
+              style={{ marginTop: "auto" }}>
+        Analyze
+        <ArrowRight className="w-4 h-4" />
+      </button>
     </div>
   );
 }

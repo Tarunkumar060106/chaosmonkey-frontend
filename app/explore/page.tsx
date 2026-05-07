@@ -266,23 +266,24 @@ Please:
   ];
 
   const handleAutofix = async () => {
-    const isPro = false;
+    const isBuilder = userPlan === "builder";
 
-    if (!isPro) {
-      if (confirm("Auto-Fix PRs are a Pro feature. Would you like to upgrade now?")) {
+    if (!isBuilder) {
+      if (confirm("Auto-Fix PRs require the Builder plan. Upgrade now?")) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/stripe/create-checkout-session`, {
+          const ghUser = JSON.parse(localStorage.getItem("gh_user") || "{}");
+          const userId = ghUser.id || "anonymous";
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+          const res = await fetch(`${apiUrl}/api/payments/checkout`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: "demo-user", plan: "pro" })
+            body: JSON.stringify({ user_id: userId, plan: "builder" }),
           });
           const data = await res.json();
-          if (data.url) {
-            window.location.href = data.url;
-            return;
-          }
+          if (data.url) { window.location.href = data.url; return; }
+          if (data.razorpay_order_id) { window.location.href = "/pricing"; return; }
         } catch (e) {
-          console.error("Stripe error", e);
+          console.error("Checkout error", e);
         }
       }
       return;

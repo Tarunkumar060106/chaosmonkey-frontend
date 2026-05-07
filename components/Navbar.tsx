@@ -1,43 +1,154 @@
 "use client";
 
-import { useState } from "react";
-import { Shield, ArrowRight, GitBranch, Scan, FileSearch } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Shield, GitBranch, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 
 export default function Navbar() {
-  const [isLoggedIn] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !!localStorage.getItem("github_token");
-    }
-    return false;
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("github_token"));
+
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--ink-subtle)]"
-         style={{ background: "rgba(9, 9, 11, 0.85)", backdropFilter: "blur(12px)" }}>
-      <div className="max-container flex items-center justify-between h-14">
+    <nav
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        height: "var(--nav-height)",
+        background: scrolled ? "rgba(10,10,10,0.92)" : "transparent",
+        borderBottom: scrolled ? "1px solid var(--border-subtle)" : "1px solid transparent",
+        backdropFilter: scrolled ? "blur(12px)" : "none",
+        transition: "background 0.2s ease, border-color 0.2s ease",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "var(--max-width)",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1.5rem",
+        }}
+      >
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center"
-               style={{ background: "var(--ink-gold-dim)", border: "1px solid rgba(226, 192, 68, 0.2)" }}>
-            <Shield className="w-4 h-4" style={{ color: "var(--ink-gold)" }} />
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            textDecoration: "none",
+          }}
+        >
+          <div
+            style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "7px",
+              background: "var(--green-dim)",
+              border: "1px solid var(--green-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Shield size={14} color="var(--green)" strokeWidth={2.5} />
           </div>
-          <span className="text-sm font-semibold tracking-tight"
-                style={{ color: "var(--ink-white)" }}>
-            ChaosMonkey
+          <span
+            style={{
+              fontSize: "0.9375rem",
+              fontWeight: 600,
+              letterSpacing: "-0.03em",
+              color: "var(--text-primary)",
+            }}
+          >
+            greenlit
           </span>
-        </a>
+        </Link>
 
-        {/* Right */}
-        <div className="flex items-center gap-3">
+        {/* Center nav */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "2rem",
+          }}
+          className="hidden sm:flex"
+        >
+          <Link
+            href="/idea"
+            style={{
+              fontSize: "0.8125rem",
+              color: "var(--text-secondary)",
+              textDecoration: "none",
+              fontWeight: 500,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+          >
+            Blueprint
+          </Link>
+          <Link
+            href="/guide"
+            style={{
+              fontSize: "0.8125rem",
+              color: "var(--text-secondary)",
+              textDecoration: "none",
+              fontWeight: 500,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+          >
+            Guide
+          </Link>
+          <Link
+            href="/#pricing"
+            style={{
+              fontSize: "0.8125rem",
+              color: "var(--text-secondary)",
+              textDecoration: "none",
+              fontWeight: 500,
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-primary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+          >
+            Pricing
+          </Link>
+        </div>
+
+        {/* Right side */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {isLoggedIn ? (
-            <a href="/dashboard" className="btn btn-secondary" style={{ fontSize: "0.8125rem", padding: "7px 16px" }}>
-              <GitBranch className="w-3.5 h-3.5" />
+            <Link
+              href="/dashboard"
+              className="btn btn-outline"
+              style={{ fontSize: "0.8125rem", padding: "7px 14px", gap: "6px" }}
+            >
+              <LayoutDashboard size={13} />
               Dashboard
-            </a>
+            </Link>
           ) : (
-            <a href="http://localhost:8000/auth/github/login"
-               className="btn btn-secondary"
-               style={{ fontSize: "0.8125rem", padding: "7px 16px" }}>
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/auth/github/login`}
+              className="btn btn-green"
+              style={{ fontSize: "0.8125rem", padding: "7px 16px" }}
+            >
               Sign in with GitHub
             </a>
           )}

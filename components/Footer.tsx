@@ -1,37 +1,104 @@
 import { Shield } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t" style={{ borderColor: "var(--ink-subtle)" }}>
-      <div className="max-container py-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer
+      style={{
+        borderTop: "1px solid var(--border-subtle)",
+        background: "var(--surface-main)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "var(--max-width)",
+          margin: "0 auto",
+          padding: "2rem 1.5rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
           {/* Brand */}
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" style={{ color: "var(--ink-dim)" }} />
-            <span className="text-sm" style={{ color: "var(--ink-dim)" }}>
-              ChaosMonkey
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              textDecoration: "none",
+            }}
+          >
+            <div
+              style={{
+                width: "22px",
+                height: "22px",
+                borderRadius: "5px",
+                background: "var(--green-dim)",
+                border: "1px solid var(--green-border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Shield size={11} color="var(--green)" strokeWidth={2.5} />
+            </div>
+            <span
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                color: "var(--text-secondary)",
+              }}
+            >
+              greenlit
             </span>
-          </div>
+          </Link>
 
           {/* Links */}
-          <div className="flex items-center gap-6">
-            <a href="https://github.com/LakshyaBetala/cerebro"
-               target="_blank"
-               rel="noreferrer"
-               className="text-xs transition-colors"
-               style={{ color: "var(--ink-dim)" }}
-               onMouseEnter={(e) => e.currentTarget.style.color = "var(--ink-mid)"}
-               onMouseLeave={(e) => e.currentTarget.style.color = "var(--ink-dim)"}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontSize: "0.8125rem",
+                color: "var(--text-tertiary)",
+                textDecoration: "none",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-tertiary)")}
+            >
               GitHub
             </a>
-            <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
-              Built for vibe coders
-            </span>
+            <Link
+              href="/#pricing"
+              style={{
+                fontSize: "0.8125rem",
+                color: "var(--text-tertiary)",
+                textDecoration: "none",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text-secondary)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-tertiary)")}
+            >
+              Pricing
+            </Link>
           </div>
 
           {/* Copyright */}
-          <p className="text-xs" style={{ color: "var(--ink-dim)" }}>
-            &copy; {new Date().getFullYear()} ChaosMonkey
+          <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)", margin: 0 }}>
+            &copy; {new Date().getFullYear()} Greenlit. Built for vibe coders.
           </p>
         </div>
       </div>

@@ -2,6 +2,8 @@
 
 import { Shield, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
 interface DashboardHeaderProps {
   username?: string;
@@ -18,41 +20,78 @@ export default function DashboardHeader({ username, avatarUrl, loading }: Dashbo
   };
 
   return (
-    <header style={{
-      borderBottom: "1px solid var(--ink-subtle)",
-      background: "rgba(9, 9, 11, 0.85)",
-      backdropFilter: "blur(12px)",
-    }}>
-      <div className="max-container-lg flex items-center justify-between h-14">
+    <header
+      style={{
+        background: "var(--surface-main)",
+        borderBottom: "1px solid var(--border-subtle)",
+        height: "var(--nav-height)",
+        position: "sticky",
+        top: 0,
+        zIndex: 40,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "var(--max-width)",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center"
-               style={{ background: "var(--ink-gold-dim)", border: "1px solid rgba(226, 192, 68, 0.2)" }}>
-            <Shield className="w-4 h-4" style={{ color: "var(--ink-gold)" }} />
+        <Link
+          href="/"
+          style={{ display: "flex", alignItems: "center", gap: "7px", textDecoration: "none" }}
+        >
+          <div
+            style={{
+              width: "26px",
+              height: "26px",
+              borderRadius: "6px",
+              background: "var(--green-dim)",
+              border: "1px solid var(--green-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Shield size={13} color="var(--green)" strokeWidth={2.5} />
           </div>
-          <span className="text-sm font-semibold tracking-tight" style={{ color: "var(--ink-white)" }}>
-            ChaosMonkey
+          <span style={{ fontSize: "0.875rem", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
+            greenlit
           </span>
-        </a>
+        </Link>
 
-        {/* Right */}
-        <div className="flex items-center gap-4">
+        {/* User */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {loading ? (
-            <div className="skeleton" style={{ width: "80px", height: "24px" }} />
+            <div style={{ width: "80px", height: "20px", background: "var(--surface-elevated)", borderRadius: "4px" }} />
           ) : username ? (
-            <div className="flex items-center gap-3">
+            <>
               {avatarUrl && (
-                <img src={avatarUrl} alt={username}
-                     className="w-6 h-6 rounded-full"
-                     style={{ border: "1px solid var(--ink-muted)" }} />
+                <Image
+                  src={avatarUrl}
+                  alt={username}
+                  width={24}
+                  height={24}
+                  style={{ borderRadius: "50%", border: "1px solid var(--border-strong)" }}
+                />
               )}
-              <span style={{ color: "var(--ink-mid)", fontSize: "0.8125rem" }}>
+              <span style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", fontWeight: 500 }}>
                 {username}
               </span>
-              <button onClick={handleSignOut} className="btn btn-ghost" style={{ padding: "6px 10px" }}>
-                <LogOut className="w-3.5 h-3.5" />
+              <button
+                onClick={handleSignOut}
+                className="btn btn-ghost"
+                style={{ padding: "6px 8px" }}
+                title="Sign out"
+              >
+                <LogOut size={13} color="var(--text-secondary)" />
               </button>
-            </div>
+            </>
           ) : null}
         </div>
       </div>

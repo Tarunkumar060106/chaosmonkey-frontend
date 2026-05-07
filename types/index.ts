@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   ChaosMonkey v2 — TypeScript Interfaces
+   Greenlit — TypeScript Interfaces
    ═══════════════════════════════════════════════ */
 
 // ── GitHub Types ──────────────────────────────
@@ -92,6 +92,9 @@ export interface Improvement {
 }
 
 export interface AnalysisReport {
+  scan_id?: string;
+  repo_id?: string;
+  autofix_pr_url?: string | null;
   health_score: number;
   tech_stack: TechStackItem[];
   architecture: Architecture;
@@ -102,7 +105,51 @@ export interface AnalysisReport {
   vulnerabilities: Vulnerability[];
   broken_links: BrokenLink[];
   improvements: Improvement[];
+  platform_detected?: string | null;
 }
+
+// ── Monitoring Types ──────────────────────────
+
+export interface MonitoredRepo {
+  id: string;
+  github_url: string;
+  name: string;
+  full_name: string;
+  is_monitoring: number; // SQLite uses 0/1
+  last_scan_at: string | null;
+  production_url?: string | null;
+  last_uptime_status?: string | null;
+  created_at: string;
+  latest_scan?: {
+    id: string;
+    health_score: number;
+    vulnerabilities_count: number;
+    critical_count: number;
+    status: string;
+    created_at: string;
+  } | null;
+}
+
+export interface ScanHistoryItem {
+  id: string;
+  health_score: number;
+  vulnerabilities_count: number;
+  critical_count: number;
+  commit_sha: string | null;
+  scan_type: "full" | "diff";
+  status: string;
+  created_at: string;
+  autofix_pr_url?: string | null;
+  changelog_summary?: string | null;
+}
+
+export interface PlatformStats {
+  total_scans: number;
+  total_repos: number;
+  total_vulnerabilities: number;
+}
+
+export type UserPlan = "free" | "starter" | "builder";
 
 // ── UI State Types ────────────────────────────
 
@@ -117,7 +164,43 @@ export type AnalysisTab =
   | "explained"
   | "vulnerabilities"
   | "broken-links"
-  | "improvements";
+  | "improvements"
+  | "timeline"
+  | "probe"
+  | "deploy";
+
+// ── DAST Probe Types ──────────────────────────
+
+export interface DastCheckResult {
+  name: string;
+  severity: "critical" | "high" | "medium" | "low";
+  passed: boolean;
+  description: string;
+  proof_request: string;
+  proof_response: string;
+  fix: string;
+  category: string;
+}
+
+export interface DastProbeResult {
+  url: string;
+  duration_seconds: number;
+  total_checks: number;
+  issues_found: number;
+  runtime_score: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  results: DastCheckResult[];
+  summary: string;
+}
+
+export interface ProbeJob {
+  status: "queued" | "scanning" | "complete" | "error";
+  url: string;
+  result?: DastProbeResult;
+  error?: string;
+}
 
 export interface CloneStatus {
   status: "idle" | "cloning" | "done" | "error";

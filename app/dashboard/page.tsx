@@ -2,26 +2,39 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchRepos, fetchGitHubUser } from "@/services/api";
-import { Repository, GitHubUser, ViewMode } from "@/types";
-import RepoCard from "@/components/RepoCard";
-import DashboardHeader from "@/components/DashboardHeader";
-import EmptyState from "@/components/EmptyState";
 import {
-  Search, Grid3x3, List, GitBranch, RefreshCw, ArrowRight, Github,
+  fetchMonitoredRepos, fetchRepos, fetchGitHubUser,
+  trackRepo, triggerScan, fetchRepoHistory,
+} from "@/services/api";
+import { MonitoredRepo, Repository, GitHubUser } from "@/types";
+import DashboardHeader from "@/components/DashboardHeader";
+import MonitoredRepoCard from "@/components/MonitoredRepoCard";
+import StatCard from "@/components/StatCard";
+import EmptyState from "@/components/EmptyState";
+import ShareModal from "@/components/ShareModal";
+import {
+  Search, GitBranch, ArrowRight, RefreshCw, Shield, Activity,
+  AlertTriangle, BarChart3, Plus,
 } from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [repos, setRepos] = useState<Repository[]>([]);
-  const [filteredRepos, setFilteredRepos] = useState<Repository[]>([]);
   const [user, setUser] = useState<GitHubUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const [userLoading, setUserLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [monitoredRepos, setMonitoredRepos] = useState<MonitoredRepo[]>([]);
+  const [repoHistories, setRepoHistories] = useState<Record<string, number[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [addUrl, setAddUrl] = useState("");
+  const [addLoading, setAddLoading] = useState(false);
+  const [scanningRepos, setScanningRepos] = useState<Set<string>>(new Set());
+  const [shareData, setShareData] = useState<{
+    isOpen: boolean;
+    repoId: string;
+    scanId: string;
+    repoName: string;
+    healthScore: number | null;
+  }>({ isOpen: false, repoId: "", scanId: "", repoName: "", healthScore: null });
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterPrivate, setFilterPrivate] = useState<"all" | "public" | "private">("all");
-  const [analyzeUrl, setAnalyzeUrl] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("github_token");
@@ -35,14 +48,25 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     try {
       const [reposData, userData] = await Promise.all([
-        fetchRepos(),
+        fetchMonitoredRepos().catch(() => []),
         fetchGitHubUser().catch(() => null),
       ]);
-      setRepos(reposData);
-      setFilteredRepos(reposData);
+      setMonitoredRepos(reposData);
       setUser(userData);
+
+      // Load history for each repo
+      const histories: Record<string, number[]> = {};
+      for (const repo of reposData) {
+        try {
+          const history = await fetchRepoHistory(repo.id);
+          histories[repo.id] = history.map(h => h.health_score).reverse();
+        } catch {
+          histories[repo.id] = [];
+        }
+      }
+      setRepoHistories(histories);
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.error("Failed to load dashboard:", error);
       if (error instanceof Error && error.message.includes("authentication")) {
         localStorage.removeItem("github_token");
         router.push("/");
@@ -53,214 +77,231 @@ export default function Dashboard() {
     }
   };
 
-  // Filter and search
-  useEffect(() => {
-    let filtered = repos;
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (repo) =>
-          repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          repo.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          repo.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    if (filterPrivate !== "all") {
-      filtered = filtered.filter((repo) =>
-        filterPrivate === "private" ? repo.private : !repo.private
-      );
-    }
-    setFilteredRepos(filtered);
-  }, [searchQuery, filterPrivate, repos]);
+  // Stats
+  const totalRepos = monitoredRepos.length;
+  const avgScore = monitoredRepos.length > 0
+    ? Math.round(
+        monitoredRepos
+          .filter(r => r.latest_scan?.health_score != null)
+          .reduce((sum, r) => sum + (r.latest_scan?.health_score ?? 0), 0)
+        / Math.max(monitoredRepos.filter(r => r.latest_scan?.health_score != null).length, 1)
+      )
+    : 0;
+  const totalVulns = monitoredRepos.reduce((sum, r) => sum + (r.latest_scan?.vulnerabilities_count ?? 0), 0);
+  const activeMonitors = monitoredRepos.filter(r => r.is_monitoring).length;
 
-  const handleRefresh = () => {
-    setLoading(true);
-    loadDashboardData();
+  // Filter
+  const filteredRepos = searchQuery
+    ? monitoredRepos.filter(r =>
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : monitoredRepos;
+
+  const handleAddRepo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addUrl.trim()) return;
+    setAddLoading(true);
+    try {
+      const repo = await trackRepo(addUrl.trim());
+      setMonitoredRepos(prev => [repo, ...prev]);
+      setAddUrl("");
+      // Auto-trigger scan
+      handleScanNow(repo.id);
+    } catch (err) {
+      console.error("Failed to track repo:", err);
+    } finally {
+      setAddLoading(false);
+    }
   };
 
-  const handleAnalyzeUrl = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!analyzeUrl.trim()) return;
-    router.push(`/explore?url=${encodeURIComponent(analyzeUrl.trim())}`);
+  const handleScanNow = async (repoId: string) => {
+    setScanningRepos(prev => new Set(prev).add(repoId));
+    try {
+      const { scan_id } = await triggerScan(repoId);
+      // Navigate to explore page to show scan progress
+      const repo = monitoredRepos.find(r => r.id === repoId);
+      if (repo) {
+        router.push(`/explore?url=${encodeURIComponent(repo.github_url)}`);
+      }
+    } catch (err) {
+      console.error("Failed to trigger scan:", err);
+    } finally {
+      setScanningRepos(prev => {
+        const next = new Set(prev);
+        next.delete(repoId);
+        return next;
+      });
+    }
+  };
+
+  const handleToggleMonitor = async (repoId: string, enabled: boolean) => {
+    setMonitoredRepos(prev =>
+      prev.map(r => r.id === repoId ? { ...r, is_monitoring: enabled ? 1 : 0 } : r)
+    );
+  };
+
+  const handleViewReport = (repoId: string) => {
+    const repo = monitoredRepos.find(r => r.id === repoId);
+    if (repo) {
+      router.push(`/explore?url=${encodeURIComponent(repo.github_url)}`);
+    }
+  };
+
+  const handleShare = (repoId: string, scanId: string, repoName: string, healthScore: number) => {
+    setShareData({
+      isOpen: true,
+      repoId,
+      scanId,
+      repoName,
+      healthScore,
+    });
+  };
+
+  const S = {
+    page: { minHeight: "100vh", background: "var(--surface-main)", display: "flex", flexDirection: "column" as const },
+    main: { maxWidth: "var(--max-width)", margin: "0 auto", padding: "2rem 1.5rem", flex: 1 },
+    statsGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "2rem" },
+    statCard: { background: "var(--surface-alt)", border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "1.25rem" },
+    addBar: { display: "flex", alignItems: "center", gap: "8px", background: "var(--surface-elevated)", border: "1px solid var(--border-strong)", borderRadius: "10px", padding: "6px 6px 6px 14px", marginBottom: "2rem", transition: "border-color 0.15s" },
+    addInput: { flex: 1, background: "transparent", border: "none", outline: "none", color: "var(--text-primary)", fontFamily: "var(--font-mono), monospace", fontSize: "0.8125rem" },
+    repoGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" },
+    searchWrap: { position: "relative" as const },
+    searchInput: { background: "var(--surface-elevated)", border: "1px solid var(--border-subtle)", borderRadius: "7px", padding: "7px 12px 7px 32px", fontSize: "0.8125rem", color: "var(--text-primary)", outline: "none", width: "180px" },
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--ink-black)" }}>
+    <div style={S.page}>
       <DashboardHeader
         username={user?.login}
         avatarUrl={user?.avatar_url}
         loading={userLoading}
       />
 
-      <main className="max-container-lg py-8">
-        {/* ── Analyze Any Repo ── */}
-        <div className="animate-in stagger-1 mb-10">
-          <h2 className="font-display mb-4" style={{ fontSize: "1.5rem", color: "var(--ink-white)" }}>
-            Analyze any repository
-          </h2>
-          <form onSubmit={handleAnalyzeUrl}>
-            <div className="flex gap-2"
-                 style={{
-                   padding: "5px",
-                   background: "var(--ink-deep)",
-                   border: "1px solid var(--ink-subtle)",
-                   borderRadius: "var(--radius-lg)",
-                 }}>
-              <div className="flex items-center pl-3" style={{ color: "var(--ink-dim)" }}>
-                <GitBranch className="w-4 h-4" />
+      <main style={S.main}>
+
+        {/* ── Stats ── */}
+        <div className="animate-in stagger-1 stats-grid" style={S.statsGrid}>
+          {[
+            { icon: GitBranch, label: "Repos Tracked", value: totalRepos, color: "var(--text-secondary)" },
+            { icon: BarChart3, label: "Avg Health Score", value: avgScore > 0 ? avgScore : "—", color: "var(--green)" },
+            { icon: AlertTriangle, label: "Total Vulnerabilities", value: totalVulns, color: "#ef4444" },
+            { icon: Activity, label: "Active Monitors", value: activeMonitors, color: "var(--green)" },
+          ].map(({ icon: Icon, label, value, color }) => (
+            <div key={label} style={S.statCard}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "0.75rem" }}>
+                <Icon size={14} color={color} strokeWidth={1.75} />
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>{label}</span>
               </div>
+              <div style={{ fontSize: "1.75rem", fontWeight: 700, letterSpacing: "-0.04em", color: "var(--text-primary)" }}>
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Add Repo Bar ── */}
+        <div className="animate-in stagger-2" style={{ marginBottom: "2rem" }}>
+          <form onSubmit={handleAddRepo}>
+            <div style={S.addBar}>
+              <Plus size={15} color="var(--text-tertiary)" strokeWidth={1.75} />
               <input
                 type="text"
-                value={analyzeUrl}
-                onChange={(e) => setAnalyzeUrl(e.target.value)}
-                placeholder="https://github.com/user/repo"
-                className="flex-1 bg-transparent border-none outline-none"
-                style={{
-                  color: "var(--ink-white)",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.9375rem",
-                  padding: "10px 8px",
-                }}
-                id="dashboard-url-input"
+                value={addUrl}
+                onChange={(e) => setAddUrl(e.target.value)}
+                placeholder="Track a new repo — paste GitHub URL"
+                style={S.addInput}
+                id="add-repo-input"
               />
               <button
                 type="submit"
-                disabled={!analyzeUrl.trim()}
-                className="btn btn-primary"
-                style={{ borderRadius: "var(--radius-md)", padding: "10px 24px" }}
+                disabled={!addUrl.trim() || addLoading}
+                className="btn btn-green"
+                style={{ padding: "8px 18px", fontSize: "0.8125rem" }}
+                id="add-repo-button"
               >
-                Analyze
-                <ArrowRight className="w-4 h-4" />
+                {addLoading ? <span className="loading-dot">Adding</span> : <>Track & Scan <ArrowRight size={12} style={{ marginLeft: "4px" }} /></>}
               </button>
             </div>
           </form>
         </div>
 
-        {/* ── Divider ── */}
-        <div className="divider mb-8" />
+        <div style={{ height: "1px", background: "var(--border-subtle)", marginBottom: "2rem" }} />
 
-        {/* ── Your Repositories ── */}
-        <div className="animate-in stagger-2">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <h2 className="font-display" style={{ fontSize: "1.25rem", color: "var(--ink-white)" }}>
-              Your repositories
+        {/* ── Repos Header ── */}
+        <div className="animate-in stagger-3">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", gap: "1rem", flexWrap: "wrap" }}>
+            <h2 style={{ fontSize: "1rem", fontWeight: 600, letterSpacing: "-0.025em", color: "var(--text-primary)", margin: 0 }}>
+              Monitored Repositories
             </h2>
-
-            <div className="flex items-center gap-3">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-                        style={{ color: "var(--ink-dim)" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={S.searchWrap}>
+                <Search size={12} color="var(--text-tertiary)" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)" }} />
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input"
-                  style={{
-                    paddingLeft: "36px",
-                    width: "200px",
-                    fontSize: "0.8125rem",
-                    padding: "8px 12px 8px 36px",
-                  }}
-                  id="search-repos-input"
+                  style={S.searchInput}
+                  id="search-monitored-input"
                 />
               </div>
-
-              {/* Filter */}
-              <select
-                value={filterPrivate}
-                onChange={(e) => setFilterPrivate(e.target.value as any)}
-                className="input"
-                style={{
-                  width: "auto",
-                  fontSize: "0.8125rem",
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                  color: "var(--ink-mid)",
-                }}
+              <button
+                onClick={() => { setLoading(true); loadDashboardData(); }}
+                disabled={loading}
+                className="btn btn-ghost"
+                style={{ padding: "7px 10px" }}
               >
-                <option value="all">All</option>
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-              </select>
-
-              {/* View Toggle */}
-              <div className="flex" style={{ border: "1px solid var(--ink-subtle)", borderRadius: "var(--radius-sm)" }}>
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className="p-2 transition-colors"
-                  style={{
-                    background: viewMode === "grid" ? "var(--ink-gold)" : "transparent",
-                    color: viewMode === "grid" ? "var(--ink-black)" : "var(--ink-dim)",
-                    borderRadius: "var(--radius-sm) 0 0 var(--radius-sm)",
-                  }}
-                >
-                  <Grid3x3 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className="p-2 transition-colors"
-                  style={{
-                    background: viewMode === "list" ? "var(--ink-gold)" : "transparent",
-                    color: viewMode === "list" ? "var(--ink-black)" : "var(--ink-dim)",
-                    borderLeft: "1px solid var(--ink-subtle)",
-                    borderRadius: "0 var(--radius-sm) var(--radius-sm) 0",
-                  }}
-                >
-                  <List className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Refresh */}
-              <button onClick={handleRefresh} disabled={loading} className="btn btn-ghost" style={{ padding: "8px" }}>
-                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <RefreshCw size={13} style={{ animation: loading ? "spin 1s linear infinite" : "none" }} />
               </button>
             </div>
           </div>
 
-          {/* Count */}
           {!loading && filteredRepos.length > 0 && (
-            <p className="mb-4" style={{ fontSize: "0.75rem", color: "var(--ink-dim)" }}>
-              {filteredRepos.length} of {repos.length} repositories
+            <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)", marginBottom: "1rem" }}>
+              {filteredRepos.length} of {monitoredRepos.length} repositories
             </p>
           )}
 
-          {/* Content */}
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="w-3 h-3 rounded-full mx-auto mb-4 loading-dot"
-                     style={{ background: "var(--ink-gold)" }} />
-                <p style={{ color: "var(--ink-dim)", fontSize: "0.8125rem" }}>
-                  Loading repositories...
-                </p>
-              </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "5rem 0" }}>
+              <p style={{ color: "var(--text-tertiary)", fontSize: "0.8125rem" }}>Loading your repos...</p>
             </div>
           ) : filteredRepos.length === 0 ? (
             <EmptyState
-              icon={searchQuery ? Search : Github}
-              title={searchQuery ? "No results" : "No repositories"}
-              description={
-                searchQuery
-                  ? "Try adjusting your search or filters."
-                  : "Connect your GitHub account or check your repository access."
-              }
-              actionLabel={searchQuery ? "Clear search" : "Refresh"}
-              onAction={() => (searchQuery ? setSearchQuery("") : handleRefresh())}
+              icon={searchQuery ? Search : Shield}
+              title={searchQuery ? "No results" : "No repos tracked yet"}
+              description={searchQuery ? "Try adjusting your search." : "Paste a GitHub URL above to start monitoring your first repo."}
+              actionLabel={searchQuery ? "Clear search" : undefined}
+              onAction={searchQuery ? () => setSearchQuery("") : undefined}
             />
           ) : (
-            <div className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "flex flex-col gap-3"
-            }>
+            <div className="repo-grid" style={S.repoGrid}>
               {filteredRepos.map((repo) => (
-                <RepoCard key={repo.full_name} repo={repo} viewMode={viewMode} />
+                <MonitoredRepoCard
+                  key={repo.id}
+                  repo={repo}
+                  history={repoHistories[repo.id] || []}
+                  onToggleMonitor={handleToggleMonitor}
+                  onScanNow={handleScanNow}
+                  onViewReport={handleViewReport}
+                  onShare={handleShare}
+                  scanLoading={scanningRepos.has(repo.id)}
+                />
               ))}
             </div>
           )}
         </div>
       </main>
+
+      <ShareModal
+        isOpen={shareData.isOpen}
+        onClose={() => setShareData(prev => ({ ...prev, isOpen: false }))}
+        repoId={shareData.repoId}
+        scanId={shareData.scanId}
+        repoName={shareData.repoName}
+        healthScore={shareData.healthScore}
+      />
     </div>
   );
 }

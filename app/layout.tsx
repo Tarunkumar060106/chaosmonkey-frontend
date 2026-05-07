@@ -13,17 +13,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ChaosMonkey — Understand What You Built",
+  title: "Greenlit — Find vulnerabilities before hackers do",
   description:
-    "Paste any GitHub repo. Get a full architecture breakdown, security audit, and improvement roadmap in 30 seconds. Built for vibe coders.",
+    "Greenlit scans your GitHub repo, probes your live app for real exploits, and generates one-click fixes. The always-on security layer for AI-built apps.",
   keywords: [
-    "code analysis",
-    "architecture",
-    "security audit",
-    "vibe coding",
-    "GitHub",
-    "AI",
+    "vibe coding security",
+    "AI app security audit",
+    "Lovable security scanner",
+    "Bolt security",
+    "v0 app audit",
+    "Cursor security",
+    "DAST vibe coding",
+    "auto-fix vulnerabilities",
+    "GitHub repo security",
   ],
+  openGraph: {
+    title: "Greenlit — Find vulnerabilities before hackers do",
+    description: "Scans your code. Probes your live app. Proves the exploit. Fixes it in one click.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -34,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased noise`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   fetchMonitoredRepos, fetchRepos, fetchGitHubUser,
-  trackRepo, triggerScan, fetchRepoHistory,
+  trackRepo, triggerScan, fetchRepoHistory, getUserPlan,
 } from "@/services/api";
 import { MonitoredRepo, Repository, GitHubUser } from "@/types";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -35,6 +35,8 @@ export default function Dashboard() {
     healthScore: number | null;
   }>({ isOpen: false, repoId: "", scanId: "", repoName: "", healthScore: null });
   const [searchQuery, setSearchQuery] = useState("");
+  const [userPlan, setUserPlan] = useState<string>("free");
+  const [planLimits, setPlanLimits] = useState<{ repos: number; monitoring: boolean; dast: boolean }>({ repos: 1, monitoring: false, dast: false });
 
   useEffect(() => {
     const token = localStorage.getItem("github_token");
@@ -53,6 +55,22 @@ export default function Dashboard() {
       ]);
       setMonitoredRepos(reposData);
       setUser(userData);
+
+      // Load plan from localStorage (set by auth callback)
+      try {
+        const stored = localStorage.getItem("gh_user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          if (u.id) {
+            const planData = await getUserPlan(u.id).catch(() => null);
+            if (planData) {
+              setUserPlan(planData.plan || "free");
+              setPlanLimits(planData.limits || { repos: 1, monitoring: false, dast: false });
+            }
+          }
+        }
+      } catch {}
+
 
       // Load history for each repo
       const histories: Record<string, number[]> = {};
@@ -175,10 +193,43 @@ export default function Dashboard() {
       <DashboardHeader
         username={user?.login}
         avatarUrl={user?.avatar_url}
+        plan={userPlan}
         loading={userLoading}
       />
 
       <main style={S.main}>
+
+        {/* ── Plan limit warning ── */}
+        {!loading && userPlan === "free" && totalRepos >= 1 && (
+          <div
+            className="animate-in"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "1rem",
+              background: "rgba(245, 158, 11, 0.08)",
+              border: "1px solid rgba(245, 158, 11, 0.3)",
+              borderRadius: "10px",
+              padding: "0.875rem 1.25rem",
+              marginBottom: "1.5rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+              <AlertTriangle size={14} color="#f59e0b" strokeWidth={2} />
+              <span style={{ color: "#f59e0b", fontSize: "0.8125rem", fontWeight: 600 }}>
+                Free plan — 1 repo limit reached
+              </span>
+              <span style={{ color: "var(--text-secondary)", fontSize: "0.8125rem" }}>
+                Upgrade to track up to 3 repos with private access and uptime monitoring.
+              </span>
+            </div>
+            <a href="/pricing" className="btn btn-green" style={{ fontSize: "0.75rem", padding: "5px 14px", whiteSpace: "nowrap" }}>
+              Upgrade to Starter →
+            </a>
+          </div>
+        )}
 
         {/* ── Stats ── */}
         <div className="animate-in stagger-1 stats-grid" style={S.statsGrid}>

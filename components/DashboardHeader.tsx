@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, LogOut } from "lucide-react";
+import { Shield, LogOut, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,16 +8,33 @@ import Link from "next/link";
 interface DashboardHeaderProps {
   username?: string;
   avatarUrl?: string;
+  plan?: string;
   loading?: boolean;
 }
 
-export default function DashboardHeader({ username, avatarUrl, loading }: DashboardHeaderProps) {
+const PLAN_LABEL: Record<string, string> = {
+  free: "Free",
+  starter: "Starter",
+  builder: "Builder",
+};
+
+const PLAN_COLOR: Record<string, string> = {
+  free: "var(--text-tertiary)",
+  starter: "#3b82f6",
+  builder: "var(--green)",
+};
+
+export default function DashboardHeader({ username, avatarUrl, plan = "free", loading }: DashboardHeaderProps) {
   const router = useRouter();
 
   const handleSignOut = () => {
     localStorage.removeItem("github_token");
+    localStorage.removeItem("gh_user");
     router.push("/");
   };
+
+  const planColor = PLAN_COLOR[plan] || PLAN_COLOR.free;
+  const planLabel = PLAN_LABEL[plan] || "Free";
 
   return (
     <header
@@ -42,31 +59,90 @@ export default function DashboardHeader({ username, avatarUrl, loading }: Dashbo
         }}
       >
         {/* Logo */}
-        <Link
-          href="/"
-          style={{ display: "flex", alignItems: "center", gap: "7px", textDecoration: "none" }}
-        >
-          <div
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "6px",
-              background: "var(--green-dim)",
-              border: "1px solid var(--green-border)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <Link
+            href="/"
+            style={{ display: "flex", alignItems: "center", gap: "7px", textDecoration: "none" }}
           >
-            <Shield size={13} color="var(--green)" strokeWidth={2.5} />
-          </div>
-          <span style={{ fontSize: "0.875rem", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
-            greenlit
-          </span>
-        </Link>
+            <div
+              style={{
+                width: "26px",
+                height: "26px",
+                borderRadius: "6px",
+                background: "var(--green-dim)",
+                border: "1px solid var(--green-border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Shield size={13} color="var(--green)" strokeWidth={2.5} />
+            </div>
+            <span style={{ fontSize: "0.875rem", fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-primary)" }}>
+              greenlit
+            </span>
+          </Link>
 
-        {/* User */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Nav links */}
+          <nav style={{ display: "flex", alignItems: "center", gap: "0.1rem" }}>
+            {[
+              { href: "/dashboard", label: "Dashboard" },
+              { href: "/explore", label: "Scan" },
+              { href: "/guide", label: "Guide" },
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "var(--text-secondary)",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.15s",
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {/* Right: plan + user */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {!loading && (
+            <>
+              {/* Plan badge */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  background: `${planColor}18`,
+                  border: `1px solid ${planColor}40`,
+                  borderRadius: "999px",
+                  padding: "3px 10px",
+                }}
+              >
+                <Zap size={10} color={planColor} strokeWidth={2.5} />
+                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: planColor, letterSpacing: "0.04em" }}>
+                  {planLabel.toUpperCase()}
+                </span>
+              </div>
+
+              {plan === "free" && (
+                <Link
+                  href="/pricing"
+                  className="btn btn-green"
+                  style={{ padding: "5px 12px", fontSize: "0.75rem" }}
+                >
+                  Upgrade
+                </Link>
+              )}
+            </>
+          )}
+
           {loading ? (
             <div style={{ width: "80px", height: "20px", background: "var(--surface-elevated)", borderRadius: "4px" }} />
           ) : username ? (

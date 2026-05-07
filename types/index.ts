@@ -147,6 +147,9 @@ export interface PlatformStats {
   total_scans: number;
   total_repos: number;
   total_vulnerabilities: number;
+  total_criticals: number;
+  avg_health_score: number | null;
+  pct_repos_with_criticals: number;
 }
 
 export type UserPlan = "free" | "starter" | "builder";

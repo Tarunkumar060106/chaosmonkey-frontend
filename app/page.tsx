@@ -286,6 +286,76 @@ export default function LandingPage() {
         </section>
 
         {/* ══════════════════════════════════════════════
+            STATE OF VIBE CODING
+        ══════════════════════════════════════════════ */}
+        {stats && stats.total_scans > 0 && (
+          <section style={{ borderTop: "1px solid var(--border-subtle)", padding: "80px 1.5rem" }}>
+            <div style={{ maxWidth: "var(--max-width)", margin: "0 auto" }}>
+              <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+                <span className="badge badge-red" style={{ marginBottom: "1rem" }}>
+                  <TrendingUp size={10} />
+                  Live Data
+                </span>
+                <h2 style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.2, marginBottom: "0.75rem" }}>
+                  State of Vibe Coding
+                </h2>
+                <p style={{ fontSize: "0.9375rem", color: "var(--text-secondary)", maxWidth: "34rem", margin: "0 auto" }}>
+                  Real data from AI-built apps scanned on Greenlit. The numbers are worse than you&apos;d think.
+                </p>
+              </div>
+
+              <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+                <div style={{ background: "var(--surface-alt)", border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text-primary)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                    {stats.total_scans.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>repos scanned</div>
+                </div>
+
+                <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "10px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", color: "#f87171", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                    {stats.pct_repos_with_criticals}%
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>have critical vulnerabilities</div>
+                </div>
+
+                <div style={{ background: "var(--surface-alt)", border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text-primary)", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                    {stats.total_vulnerabilities.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>vulnerabilities found</div>
+                </div>
+
+                {stats.avg_health_score !== null && (
+                  <div style={{ background: "var(--surface-alt)", border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "1.5rem" }}>
+                    <div style={{
+                      fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1,
+                      fontVariantNumeric: "tabular-nums",
+                      color: stats.avg_health_score >= 80 ? "var(--green)" : stats.avg_health_score >= 60 ? "#f59e0b" : "#f87171",
+                    }}>
+                      {stats.avg_health_score}/100
+                    </div>
+                    <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>average health score</div>
+                  </div>
+                )}
+
+                <div style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: "10px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", color: "#f87171", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                    {stats.total_criticals.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>critical issues found</div>
+                </div>
+
+                <div style={{ background: "var(--green-dim)", border: "1px solid var(--green-border)", borderRadius: "10px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--green)", lineHeight: 1 }}>Free</div>
+                  <div style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>to scan your first repo</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════
             PROOF OF EXPLOIT — the differentiator
         ══════════════════════════════════════════════ */}
         <section style={{ borderTop: "1px solid var(--border-subtle)", borderBottom: "1px solid var(--border-subtle)", padding: "80px 1.5rem" }}>

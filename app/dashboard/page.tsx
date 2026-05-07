@@ -32,8 +32,7 @@ export default function Dashboard() {
     repoId: string;
     scanId: string;
     repoName: string;
-    healthScore: number | null;
-  }>({ isOpen: false, repoId: "", scanId: "", repoName: "", healthScore: null });
+  }>({ isOpen: false, repoId: "", scanId: "", repoName: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [userPlan, setUserPlan] = useState<string>("free");
   const [planLimits, setPlanLimits] = useState<{ repos: number; monitoring: boolean; dast: boolean }>({ repos: 1, monitoring: false, dast: false });
@@ -166,14 +165,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleShare = (repoId: string, scanId: string, repoName: string, healthScore: number) => {
-    setShareData({
-      isOpen: true,
-      repoId,
-      scanId,
-      repoName,
-      healthScore,
-    });
+  const handleShare = (repoId: string, scanId: string, repoName: string) => {
+    setShareData({ isOpen: true, repoId, scanId, repoName });
   };
 
   const S = {
@@ -351,7 +344,6 @@ export default function Dashboard() {
         repoId={shareData.repoId}
         scanId={shareData.scanId}
         repoName={shareData.repoName}
-        healthScore={shareData.healthScore}
       />
     </div>
   );

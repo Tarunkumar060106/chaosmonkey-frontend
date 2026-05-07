@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import {
   Github, GitBranch, Shield, Rocket, BookOpen, ChevronDown, ChevronRight,
-  Laptop, Upload, RefreshCw, Lock, AlertTriangle, CheckCircle, ExternalLink,
-  Terminal, Copy, Check, Globe,
+  Upload, Lock, ExternalLink,
+  Copy, Check,
 } from "lucide-react";
 
 const SECTIONS = [
@@ -152,7 +153,7 @@ const sectionContent: Record<string, React.ReactNode> = {
         ))}
       </div>
       <Callout type="tip">
-        GitHub is free for public repos (everyone can see your code) and free for private repos too (up to 3 collaborators). For a solo founder, you'll never pay for GitHub.
+        GitHub is free for public repos (everyone can see your code) and free for private repos too (up to 3 collaborators). For a solo founder, you&apos;ll never pay for GitHub.
       </Callout>
       <a href="https://github.com/signup" target="_blank" rel="noreferrer" className="btn btn-green" style={{ display: "inline-flex", marginTop: "0.5rem" }}>
         <Github style={{ width: "14px", height: "14px", marginRight: "6px" }} />
@@ -164,10 +165,10 @@ const sectionContent: Record<string, React.ReactNode> = {
   "git-basics": (
     <div>
       <p style={{ lineHeight: 1.8, marginBottom: "1.25rem" }}>
-        Git is the <strong style={{ color: "var(--text-primary)" }}>tool that tracks changes</strong> in your code. Think of it like "Track Changes" in Google Docs, but for code files.
+        Git is the <strong style={{ color: "var(--text-primary)" }}>tool that tracks changes</strong> in your code. Think of it like &quot;Track Changes&quot; in Google Docs, but for code files.
       </p>
       <div style={{ marginBottom: "1.5rem" }}>
-        <p style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>Three words you'll see everywhere:</p>
+        <p style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.75rem" }}>Three words you&apos;ll see everywhere:</p>
         {[
           { word: "Commit", plain: "A saved snapshot. \"I saved my work at this point in time.\" Like Ctrl+S but permanent." },
           { word: "Push", plain: "Upload your saved snapshots to GitHub (the online storage). Your code is now backed up and shareable." },
@@ -185,7 +186,7 @@ const sectionContent: Record<string, React.ReactNode> = {
         ))}
       </div>
       <Callout type="tip">
-        You don't need to understand Git deeply. Lovable and Bolt have buttons to "export to GitHub" or "push to GitHub" that do all the Git work for you. You just need to know what the words mean.
+        You don&apos;t need to understand Git deeply. Lovable and Bolt have buttons to &quot;export to GitHub&quot; or &quot;push to GitHub&quot; that do all the Git work for you. You just need to know what the words mean.
       </Callout>
     </div>
   ),
@@ -225,10 +226,10 @@ const sectionContent: Record<string, React.ReactNode> = {
           If this is your first time, Lovable will ask you to log in to GitHub. Allow the permissions.
         </Step>
         <Step n="3" title="Create a new repository">
-          Give it a name (e.g., "my-app") and click "Create repository". Your code is now on GitHub.
+          Give it a name (e.g., &quot;my-app&quot;) and click &quot;Create repository&quot;. Your code is now on GitHub.
         </Step>
         <Step n="4" title="Done — find your repo">
-          Go to <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>github.com</a> → your profile → repositories. You'll see it there.
+          Go to <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>github.com</a> → your profile → repositories. You&apos;ll see it there.
         </Step>
       </div>
 
@@ -238,26 +239,26 @@ const sectionContent: Record<string, React.ReactNode> = {
           In Bolt, click the download icon (top right) to get a zip file of your project.
         </Step>
         <Step n="2" title="Create a new repo on GitHub">
-          Go to <a href="https://github.com/new" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>github.com/new</a>. Name your repo. Check "Private". Click "Create repository".
+          Go to <a href="https://github.com/new" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>github.com/new</a>. Name your repo. Check &quot;Private&quot;. Click &quot;Create repository&quot;.
         </Step>
         <Step n="3" title="Upload your files">
-          In your new repo, click "uploading an existing file". Drag in all your unzipped files. Scroll down, write "first upload" in the commit message, click "Commit changes".
+          In your new repo, click &quot;uploading an existing file&quot;. Drag in all your unzipped files. Scroll down, write &quot;first upload&quot; in the commit message, click &quot;Commit changes&quot;.
         </Step>
         <Callout type="tip">
-          Alternatively, install <a href="https://desktop.github.com" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>GitHub Desktop</a> — it's a visual app that makes git easy. No terminal needed.
+          Alternatively, install <a href="https://desktop.github.com" target="_blank" rel="noreferrer" style={{ color: "var(--green)" }}>GitHub Desktop</a> — it&apos;s a visual app that makes git easy. No terminal needed.
         </Callout>
       </div>
 
       <div id="cursor">
         <h4 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "1rem", fontSize: "1rem" }}>From Cursor / VS Code (terminal method)</h4>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6, marginBottom: "1rem" }}>
-          Open the terminal in Cursor (Ctrl+` or Cmd+`) and run these commands one by one:
+          Open the terminal in Cursor (Ctrl+&grave; or Cmd+&grave;) and run these commands one by one:
         </p>
         <CodeBlock>{`git init
 git add .
 git commit -m "first commit"`}</CodeBlock>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginBottom: "0.75rem" }}>
-          Then create a repo on GitHub (github.com/new) and run the "push existing repo" commands it shows you:
+          Then create a repo on GitHub (github.com/new) and run the &quot;push existing repo&quot; commands it shows you:
         </p>
         <CodeBlock>{`git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
 git push -u origin main`}</CodeBlock>
@@ -268,7 +269,7 @@ git push -u origin main`}</CodeBlock>
   "deploy": (
     <div>
       <p style={{ lineHeight: 1.8, marginBottom: "1.5rem" }}>
-        Your app lives on Lovable's or Bolt's servers right now. That's fine for building — but for a real product with real users, you want your own hosting. It's free.
+        Your app lives on Lovable&apos;s or Bolt&apos;s servers right now. That&apos;s fine for building — but for a real product with real users, you want your own hosting. It&apos;s free.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
@@ -325,16 +326,16 @@ git push -u origin main`}</CodeBlock>
       <div style={{ background: "var(--surface-alt)", border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "1.5rem" }}>
         <h4 style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "1rem" }}>Deploy to Vercel in 5 minutes (recommended)</h4>
         <Step n="1" title="Push your code to GitHub first">
-          Follow the "How to put your app on GitHub" guide above. You need a GitHub repo before you can deploy.
+          Follow the &quot;How to put your app on GitHub&quot; guide above. You need a GitHub repo before you can deploy.
         </Step>
         <Step n="2" title="Go to vercel.com and sign up">
-          Click "Sign up" → "Continue with GitHub". Allow permissions.
+          Click &quot;Sign up&quot; → &quot;Continue with GitHub&quot;. Allow permissions.
         </Step>
         <Step n="3" title="Import your project">
-          Click "Add New" → "Project" → find your GitHub repo → click "Import".
+          Click &quot;Add New&quot; → &quot;Project&quot; → find your GitHub repo → click &quot;Import&quot;.
         </Step>
         <Step n="4" title="Add environment variables (if needed)">
-          If your app uses API keys (Supabase, OpenAI, etc.), add them here under "Environment Variables" before clicking Deploy. Never put real keys in your code files.
+          If your app uses API keys (Supabase, OpenAI, etc.), add them here under &quot;Environment Variables&quot; before clicking Deploy. Never put real keys in your code files.
         </Step>
         <Step n="5" title="Click Deploy">
           Vercel builds your app and gives you a URL like <code style={{ color: "var(--green)", fontFamily: "var(--font-mono)" }}>your-app.vercel.app</code>. Share it with anyone.
@@ -349,7 +350,7 @@ git push -u origin main`}</CodeBlock>
   "security-basics": (
     <div>
       <p style={{ lineHeight: 1.8, marginBottom: "1.5rem" }}>
-        Here's the honest truth about AI-built apps: <strong style={{ color: "var(--text-primary)" }}>91% have at least one security vulnerability</strong>. Not because AI is bad — because security is hard and AI tools optimize for "it works," not "it's secure."
+        Here&apos;s the honest truth about AI-built apps: <strong style={{ color: "var(--text-primary)" }}>91% have at least one security vulnerability</strong>. Not because AI is bad — because security is hard and AI tools optimize for &quot;it works,&quot; not &quot;it&apos;s secure.&quot;
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.75rem" }}>
@@ -382,7 +383,7 @@ git push -u origin main`}</CodeBlock>
               <span style={{ fontSize: "0.8125rem", fontWeight: 600 }}>{item.severity}</span>
             </div>
             <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}><strong style={{ color: "var(--text-primary)" }}>What it is:</strong> {item.what}</p>
-            <p style={{ fontSize: "0.875rem", color: "#f87171", marginBottom: "0.5rem" }}><strong>Why it's dangerous:</strong> {item.whyBad}</p>
+            <p style={{ fontSize: "0.875rem", color: "#f87171", marginBottom: "0.5rem" }}><strong>Why it&apos;s dangerous:</strong> {item.whyBad}</p>
             <p style={{ fontSize: "0.75rem", color: "var(--text-tertiary)" }}>How common: {item.howCommon}</p>
           </div>
         ))}
@@ -481,7 +482,7 @@ export default function GuidePage() {
             <span style={{ color: "var(--green)" }}>In plain English.</span>
           </h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "1rem", lineHeight: 1.7, maxWidth: "42rem" }}>
-            You built something cool with AI. Now let's make sure it's secure, deployed properly, and ready for real users — without needing a CS degree.
+            You built something cool with AI. Now let&apos;s make sure it&apos;s secure, deployed properly, and ready for real users — without needing a CS degree.
           </p>
         </div>
 
@@ -550,9 +551,9 @@ export default function GuidePage() {
           <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginBottom: "1.25rem" }}>
             Free scan. No account needed. Takes 60 seconds.
           </p>
-          <a href="/" className="btn btn-green" style={{ padding: "10px 24px" }}>
+          <Link href="/" className="btn btn-green" style={{ padding: "10px 24px" }}>
             Scan My App for Free
-          </a>
+          </Link>
         </div>
       </main>
 

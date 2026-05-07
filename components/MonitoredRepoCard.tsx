@@ -4,7 +4,7 @@ import { MonitoredRepo } from "@/types";
 import HealthScoreRing from "./HealthScoreRing";
 import HealthSparkline from "./HealthSparkline";
 import MonitorToggle from "./MonitorToggle";
-import { Clock, AlertTriangle, Scan, ExternalLink, Webhook, Zap, Share2 } from "lucide-react";
+import { Clock, AlertTriangle, Scan, ExternalLink, Zap, Share2 } from "lucide-react";
 
 interface MonitoredRepoCardProps {
   repo: MonitoredRepo;
@@ -12,7 +12,7 @@ interface MonitoredRepoCardProps {
   onToggleMonitor: (repoId: string, enabled: boolean) => void;
   onScanNow: (repoId: string) => void;
   onViewReport: (repoId: string) => void;
-  onShare?: (repoId: string, scanId: string, repoName: string, healthScore: number) => void;
+  onShare?: (repoId: string, scanId: string, repoName: string) => void;
   scanLoading?: boolean;
 }
 
@@ -41,10 +41,10 @@ export default function MonitoredRepoCard({
   const vulns = repo.latest_scan?.vulnerabilities_count ?? 0;
   const criticals = repo.latest_scan?.critical_count ?? 0;
   const hasReport = repo.latest_scan?.status === "complete";
-  const hasWebhook = !!(repo as any).webhook_id;
+  const hasWebhook = !!(repo as unknown as Record<string, unknown>).webhook_id;
 
   const isUp = repo.last_uptime_status?.startsWith("up");
-  const isDown = repo.last_uptime_status?.startsWith("down");
+  const _isDown = repo.last_uptime_status?.startsWith("down"); void _isDown;
 
   return (
     <div
@@ -159,7 +159,7 @@ export default function MonitoredRepoCard({
             <>
               {onShare && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); onShare(repo.id, repo.latest_scan!.id, repo.name, score!); }}
+                  onClick={(e) => { e.stopPropagation(); onShare(repo.id, repo.latest_scan!.id, repo.name); }}
                   className="btn btn-outline"
                   style={{ fontSize: "0.75rem", padding: "4px 12px", gap: "6px", borderRadius: "4px" }}
                 >

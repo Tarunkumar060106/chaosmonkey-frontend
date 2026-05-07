@@ -6,8 +6,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { fetchPlatformStats } from "@/services/api";
 import { PlatformStats } from "@/types";
+import Link from "next/link";
 import {
-  ArrowRight, Shield, GitBranch, Activity, Zap,
+  ArrowRight, Shield, GitBranch, Activity,
   Eye, Wrench, Bell, Globe, Terminal, Lock,
   TrendingUp, ChevronRight, AlertTriangle,
 } from "lucide-react";
@@ -71,18 +72,6 @@ function FeatureCard({
   );
 }
 
-function PricingRow({ label, free, starter, builder }: { label: string; free?: boolean; starter?: boolean; builder?: boolean }) {
-  const check = <span style={{ color: "var(--green)", fontSize: "0.875rem" }}>✓</span>;
-  const dash = <span style={{ color: "var(--text-tertiary)" }}>—</span>;
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px 80px", gap: "1rem", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)", alignItems: "center" }}>
-      <span style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>{label}</span>
-      <span style={{ textAlign: "center" }}>{free ? check : dash}</span>
-      <span style={{ textAlign: "center" }}>{starter ? check : dash}</span>
-      <span style={{ textAlign: "center" }}>{builder ? check : dash}</span>
-    </div>
-  );
-}
 
 /* ── fake terminal exploit preview ── */
 function ExploitPreview() {
@@ -113,8 +102,8 @@ function ExploitPreview() {
           <span style={{ color: "#ef4444", fontWeight: 700 }}>CRITICAL</span>
           <span style={{ color: "#888" }}> → Response 200 OK — user_2 data returned</span>
         </div>
-        <div style={{ color: "#888" }}>  email: "<span style={{ color: "#fbbf24" }}>alice@example.com</span>"</div>
-        <div style={{ color: "#888" }}>  stripe_id: "<span style={{ color: "#fbbf24" }}>cus_Nfds0...</span>"</div>
+        <div style={{ color: "#888" }}>  email: &quot;<span style={{ color: "#fbbf24" }}>alice@example.com</span>&quot;</div>
+        <div style={{ color: "#888" }}>  stripe_id: &quot;<span style={{ color: "#fbbf24" }}>cus_Nfds0...</span>&quot;</div>
         <div style={{ color: "#888" }}>&nbsp;</div>
         <div style={{ color: "#22c55e" }}>→ Auto-fix PR created: <span style={{ textDecoration: "underline" }}>greenlit/fix-bola-api-users</span></div>
         <div style={{ color: "#888" }}>&nbsp;</div>
@@ -457,7 +446,7 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <a href="/" className="btn btn-outline" style={{ width: "100%", justifyContent: "center" }}>Start Free</a>
+                <Link href="/" className="btn btn-outline" style={{ width: "100%", justifyContent: "center" }}>Start Free</Link>
               </div>
 
               {/* Starter — featured */}

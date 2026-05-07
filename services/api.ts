@@ -132,7 +132,7 @@ export async function fetchGitHubUser() {
 
 // ── Auto-Fix & Chat ───────────────────────────
 
-export async function generateAutoFixPR(repoName: string, vulnerabilities: any[]) {
+export async function generateAutoFixPR(repoName: string, vulnerabilities: Record<string, unknown>[]) {
   const res = await fetch(`${BASE_URL}/api/repos/autofix`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -142,7 +142,7 @@ export async function generateAutoFixPR(repoName: string, vulnerabilities: any[]
   return res.json();
 }
 
-export async function chatWithSidekick(question: string, report: any) {
+export async function chatWithSidekick(question: string, report: Record<string, unknown>) {
   const res = await fetch(`${BASE_URL}/api/repos/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { analyzeUrl, pollJobStatus, fetchRepoHistory } from "@/services/api";
-import { AnalysisReport, AnalysisTab, ExplainMode, ScanHistoryItem, DastCheckResult, DastProbeResult, ProbeJob } from "@/types";
+import { AnalysisReport, AnalysisTab, ExplainMode, ScanHistoryItem, ProbeJob } from "@/types";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MermaidDiagram from "@/components/MermaidDiagram";
@@ -11,10 +11,10 @@ import ShareModal from "@/components/ShareModal";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import BenchmarkMetrics from "@/components/BenchmarkMetrics";
 import {
-  Shield, GitBranch, ArrowRight, RotateCcw, AlertTriangle,
+  Shield, ArrowRight, RotateCcw, AlertTriangle,
   Network, Layers, Cable, Workflow, BookOpen, Bug, LinkIcon, Lightbulb,
-  ChevronRight, ExternalLink, Lock, Share2, Github, History,
-  Zap, Rocket, CheckCircle, XCircle, Globe, Server, Terminal, Copy, Check,
+  Lock, Share2, Github, History,
+  Zap, Rocket, CheckCircle, XCircle, Globe, Server, Copy, Check,
 } from "lucide-react";
 
 function ExploreContent() {
@@ -146,7 +146,7 @@ Please:
             }
           }
         }, 3000);
-      } catch (err) {
+      } catch {
         clearInterval(progressTimer);
         setError("Failed to start analysis. Is the backend running?");
         setStatus("error");
@@ -251,7 +251,7 @@ Please:
     };
   };
 
-  const tabs: { id: AnalysisTab; label: string; icon: any }[] = [
+  const tabs: { id: AnalysisTab; label: string; icon: React.ComponentType<{ style?: React.CSSProperties }> }[] = [
     { id: "timeline", label: "Roadmap", icon: History },
     { id: "architecture", label: "Architecture", icon: Network },
     { id: "tech-stack", label: "Tech Stack", icon: Layers },
@@ -1362,7 +1362,7 @@ Please:
                 Deploy Your App
               </h2>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginBottom: "2rem" }}>
-                Based on your tech stack, here's exactly how to deploy your app for free — step by step, no experience needed.
+                Based on your tech stack, here&apos;s exactly how to deploy your app for free — step by step, no experience needed.
               </p>
 
               {report ? (() => {
@@ -1468,7 +1468,7 @@ Please:
                           ⚠ Supabase detected — important security step
                         </p>
                         <p style={{ fontSize: "0.8125rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                          Before going live: In Supabase → Authentication → URL Configuration, add your production URL to "Site URL" and "Redirect URLs". Also enable Row Level Security (RLS) on all your tables — without it, any user can read all data.
+                          Before going live: In Supabase → Authentication → URL Configuration, add your production URL to &quot;Site URL&quot; and &quot;Redirect URLs&quot;. Also enable Row Level Security (RLS) on all your tables — without it, any user can read all data.
                         </p>
                       </div>
                     )}
@@ -1496,7 +1496,6 @@ Please:
         repoId={report?.repo_id || ""}
         scanId={report?.scan_id || ""}
         repoName={repoName}
-        healthScore={report?.health_score ?? null}
       />
     </div>
   );

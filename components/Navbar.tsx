@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield, GitBranch, LayoutDashboard } from "lucide-react";
+import { Shield, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("github_token");
+  });
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("github_token"));
-
     const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);

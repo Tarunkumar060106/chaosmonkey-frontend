@@ -9,7 +9,14 @@ export default function IdeaToAppPage() {
   const [idea, setIdea] = useState("");
   const [mode, setMode] = useState<"simple" | "advanced">("simple");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  type IdeaResult = {
+    mega_prompt?: string;
+    architecture?: string;
+    tech_stack?: string[];
+    features?: string[];
+    github_guide?: { step: string; detail: string; description?: string }[];
+  };
+  const [result, setResult] = useState<IdeaResult | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -86,7 +93,7 @@ export default function IdeaToAppPage() {
               Idea to App Blueprint
             </h1>
             <p style={{ marginBottom: "2.5rem", fontSize: "1.0625rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              Describe your idea in plain English. We'll generate the perfect tech stack and the exact prompt to paste into Antigravity or Bolt to build it for free.
+              Describe your idea in plain English. We&apos;ll generate the perfect tech stack and the exact prompt to paste into Antigravity or Bolt to build it for free.
             </p>
 
             <form onSubmit={handleGenerate} style={{ ...S.card, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -174,7 +181,7 @@ export default function IdeaToAppPage() {
                       Tech Stack
                     </h2>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                      {result.tech_stack.map((tech: string, i: number) => (
+                      {(result.tech_stack || []).map((tech, i) => (
                         <span key={i} style={S.tagChip}>{tech}</span>
                       ))}
                     </div>
@@ -190,7 +197,7 @@ export default function IdeaToAppPage() {
                       Once your app is built, follow these steps to secure it and put it online for free.
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                      {result.github_guide.map((guide: any, i: number) => (
+                      {(result.github_guide || []).map((guide, i) => (
                         <div key={i} style={{ display: "flex", gap: "0.75rem" }}>
                           <div style={S.stepCircle}>{i + 1}</div>
                           <div>

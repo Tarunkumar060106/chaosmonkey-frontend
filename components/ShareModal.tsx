@@ -9,7 +9,6 @@ interface ShareModalProps {
   repoId: string;
   scanId: string;
   repoName: string;
-  healthScore: number | null;
 }
 
 export default function ShareModal({
@@ -18,7 +17,6 @@ export default function ShareModal({
   repoId,
   scanId,
   repoName,
-  healthScore,
 }: ShareModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 

@@ -5,9 +5,10 @@ import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HealthScoreRing from "@/components/HealthScoreRing";
+import Link from "next/link";
 import {
   Shield, AlertTriangle, Code2, Layers, ChevronRight,
-  ExternalLink, Copy, Check, Lock,
+  Copy, Check, Lock,
 } from "lucide-react";
 
 interface PublicReport {
@@ -80,7 +81,7 @@ export default function PublicReportPage() {
             <p style={{ color: "var(--ink-mid)", fontSize: "0.875rem" }}>
               This report may not exist or has been removed.
             </p>
-            <a href="/" className="btn btn-secondary mt-6">Scan a repo</a>
+            <Link href="/" className="btn btn-secondary mt-6">Scan a repo</Link>
           </div>
         </main>
         <Footer />
@@ -92,8 +93,6 @@ export default function PublicReportPage() {
   const score = report.health_score ?? 0;
   const vulns = r.vulnerabilities || [];
   const techStack = r.tech_stack || [];
-  const criticals = vulns.filter(v => v.severity === "critical");
-  const highs = vulns.filter(v => v.severity === "high");
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--ink-black)" }}>
@@ -150,14 +149,14 @@ export default function PublicReportPage() {
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               {copied ? "Copied!" : "Copy Link"}
             </button>
-            <a
+            <Link
               href="/"
               className="btn btn-primary"
               style={{ fontSize: "0.8125rem", padding: "8px 16px" }}
             >
               Scan Your Repo
               <ChevronRight className="w-3.5 h-3.5" />
-            </a>
+            </Link>
           </div>
 
           {/* ── What This App Does ── */}
@@ -242,7 +241,7 @@ export default function PublicReportPage() {
                  style={{ background: "var(--ink-deep)", border: "1px solid var(--ink-subtle)" }}>
               <Shield className="w-3.5 h-3.5" style={{ color: "var(--ink-gold)" }} />
               <span style={{ color: "var(--ink-mid)", fontSize: "0.8125rem" }}>
-                Protected by <a href="/" style={{ color: "var(--ink-gold)", fontWeight: 600 }}>Greenlit</a>
+                Protected by <Link href="/" style={{ color: "var(--ink-gold)", fontWeight: 600 }}>Greenlit</Link>
               </span>
             </div>
           </div>

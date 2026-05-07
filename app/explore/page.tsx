@@ -36,6 +36,14 @@ function ExploreContent() {
   const [probeLoading, setProbeLoading] = useState(false);
   const [probeCopied, setProbeCopied] = useState<string | null>(null);
   const [fixCopied, setFixCopied] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<string>("free");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("gh_user");
+      if (stored) { const u = JSON.parse(stored); setUserPlan(u.plan || "free"); }
+    } catch {}
+  }, []);
 
   // Generate an AI-assistant-ready fix prompt (the moat)
   const generateFixPrompt = (vuln: { title: string; file: string; line?: number; description: string; severity: string; fix_suggestion?: string }) => {
@@ -795,20 +803,76 @@ Please:
           {/* Explained Tab */}
           {activeTab === "explained" && (
             <div className="animate-in">
-              <h2 className="text-headline" style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
-                {explainMode === "simple" ? "What you built, in plain English" : "Technical Architecture Overview"}
-              </h2>
-              <div style={{ ...S.card, padding: "2rem", marginTop: "1.5rem" }}>
-                <p style={{
-                  color: "var(--text-secondary)",
-                  lineHeight: 1.8,
-                  fontSize: explainMode === "simple" ? "1.0625rem" : "0.875rem",
-                  whiteSpace: "pre-wrap",
-                  fontFamily: explainMode === "advanced" ? "var(--font-mono), monospace" : "inherit",
-                }}>
-                  {explainMode === "simple" ? report?.simple_explanation : report?.advanced_explanation}
-                </p>
-              </div>
+              {explainMode === "simple" ? (
+                <>
+                  {/* CTO in a Box — plain English */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: "var(--green-dim)", border: "1px solid var(--green-border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <BookOpen style={{ width: "16px", height: "16px", color: "var(--green)" }} />
+                    </div>
+                    <div>
+                      <h2 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>What you built — explained like you&apos;re 10</h2>
+                      <p style={{ color: "var(--text-tertiary)", fontSize: "0.8rem", margin: 0 }}>Your personal CTO just read your code. Here&apos;s what they found.</p>
+                    </div>
+                  </div>
+
+                  <div style={{ ...S.card, padding: "2rem", marginBottom: "1.25rem" }}>
+                    <p style={{ color: "var(--text-secondary)", lineHeight: 1.9, fontSize: "1rem", whiteSpace: "pre-wrap" }}>
+                      {report?.simple_explanation}
+                    </p>
+                  </div>
+
+                  {/* Tech stack in plain English */}
+                  {report?.tech_stack && report.tech_stack.length > 0 && (
+                    <div style={{ ...S.card, padding: "1.5rem", marginBottom: "1.25rem" }}>
+                      <h3 style={{ color: "var(--text-primary)", fontWeight: 600, fontSize: "0.9rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <Layers style={{ width: "14px", height: "14px", color: "var(--green)" }} />
+                        The tools your app uses
+                      </h3>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0.75rem" }}>
+                        {report.tech_stack.slice(0, 6).map((t, i) => (
+                          <div key={i} style={{ background: "var(--surface-main)", border: "1px solid var(--border-subtle)", borderRadius: "8px", padding: "0.875rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
+                              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
+                              <span style={{ color: "var(--text-primary)", fontWeight: 600, fontSize: "0.85rem" }}>{t.name}</span>
+                            </div>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "0.78rem", lineHeight: 1.5, margin: 0 }}>{t.purpose}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick CTA: what to do next */}
+                  <div style={{ ...S.card, padding: "1.25rem", borderLeft: "3px solid var(--green)", display: "flex", alignItems: "flex-start", gap: "0.875rem" }}>
+                    <Shield style={{ width: "18px", height: "18px", color: "var(--green)", flexShrink: 0, marginTop: "2px" }} />
+                    <div>
+                      <p style={{ color: "var(--text-primary)", fontWeight: 600, fontSize: "0.875rem", margin: "0 0 0.25rem" }}>Your next step</p>
+                      <p style={{ color: "var(--text-secondary)", fontSize: "0.8125rem", margin: 0, lineHeight: 1.6 }}>
+                        Check the <strong>Vulnerabilities</strong> tab — it lists every security problem we found, with a button to copy the exact fix prompt for Cursor or Lovable.
+                        {(report?.vulnerabilities?.length ?? 0) > 0 && ` We found ${report!.vulnerabilities!.length} issue${report!.vulnerabilities!.length !== 1 ? "s" : ""}.`}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-headline" style={{ fontSize: "1.25rem", marginBottom: "1.5rem" }}>
+                    Technical Architecture Overview
+                  </h2>
+                  <div style={{ ...S.card, padding: "2rem" }}>
+                    <p style={{
+                      color: "var(--text-secondary)",
+                      lineHeight: 1.8,
+                      fontSize: "0.875rem",
+                      whiteSpace: "pre-wrap",
+                      fontFamily: "var(--font-mono), monospace",
+                    }}>
+                      {report?.advanced_explanation}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -886,9 +950,15 @@ Please:
                         {vuln.severity}
                       </span>
                     </div>
-                    <p style={{ marginBottom: "0.75rem", color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6 }}>
+                    <p style={{ marginBottom: explainMode === "simple" ? "0.5rem" : "0.75rem", color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6 }}>
                       {vuln.description}
                     </p>
+                    {explainMode === "simple" && vuln.fix_suggestion && (
+                      <div style={{ background: "var(--surface-main)", border: "1px solid var(--border-subtle)", borderRadius: "6px", padding: "0.625rem 0.875rem", marginBottom: "0.75rem" }}>
+                        <span style={{ color: "var(--text-tertiary)", fontSize: "0.7rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>How to fix it</span>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.8125rem", lineHeight: 1.5, margin: "0.25rem 0 0" }}>{vuln.fix_suggestion}</p>
+                      </div>
+                    )}
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
                       <span className="text-code" style={S.codeChip}>
                         {vuln.file}{vuln.line ? `:${vuln.line}` : ""}
@@ -1061,6 +1131,46 @@ Please:
           {/* Probe Live App Tab */}
           {activeTab === "probe" && (
             <div className="animate-in">
+              {/* Plan gate — DAST is Builder-only */}
+              {userPlan !== "builder" && (
+                <div style={{
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: "12px",
+                  background: "var(--surface-elevated)",
+                  padding: "3rem 2rem",
+                  textAlign: "center",
+                  marginBottom: "1.5rem",
+                }}>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                    <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "var(--green-dim)", border: "1px solid var(--green-border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Lock style={{ width: "20px", height: "20px", color: "var(--green)" }} />
+                    </div>
+                  </div>
+                  <h3 style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+                    DAST Probe is a Builder feature
+                  </h3>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", maxWidth: "440px", margin: "0 auto 0.75rem", lineHeight: 1.6 }}>
+                    Run 20 real attack checks against your live app — CORS, exposed .env, SQL injection, Supabase RLS bypass, Stripe webhook forgery, and more. See the exact HTTP proof.
+                  </p>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center", marginBottom: "1.5rem" }}>
+                    {["CORS wildcard", "Supabase RLS", "Firebase test mode", "Stripe webhook", "API keys in JS", "SQL injection"].map(f => (
+                      <span key={f} style={{ fontSize: "0.72rem", background: "var(--surface-main)", border: "1px solid var(--border-subtle)", borderRadius: "999px", padding: "3px 10px", color: "var(--text-secondary)" }}>
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                  <a href="/pricing" className="btn btn-green" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <Zap style={{ width: "14px", height: "14px" }} />
+                    Upgrade to Builder — $29/mo
+                  </a>
+                  <p style={{ color: "var(--text-tertiary)", fontSize: "0.75rem", marginTop: "0.75rem" }}>
+                    India? ₹999/mo via Razorpay (UPI / cards)
+                  </p>
+                </div>
+              )}
+
+              {/* Show probe UI only for builder */}
+              {userPlan === "builder" && (<>
               <div style={{ marginBottom: "1.5rem" }}>
                 <h2 className="text-headline" style={{ fontSize: "1.25rem", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <Zap style={{ width: "18px", height: "18px", color: "var(--green)" }} />
@@ -1239,6 +1349,7 @@ Please:
                   </p>
                 </div>
               )}
+              </>)}
             </div>
           )}
 

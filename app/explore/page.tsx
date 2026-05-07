@@ -67,12 +67,12 @@ Please:
   const startedForUrl = useRef<string>("");
 
   const progressSteps = [
-    "Cloning repository...",
-    "Scanning code files...",
-    "Chunking source code...",
-    "Generating embeddings...",
-    "Querying AI model...",
-    "Building report...",
+    "Downloading your code...",
+    "Reading every file...",
+    "Understanding your architecture...",
+    "Checking for security holes...",
+    "Asking the AI for a second opinion...",
+    "Building your personalized report...",
   ];
 
   useEffect(() => {

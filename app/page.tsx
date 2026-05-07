@@ -345,9 +345,9 @@ export default function LandingPage() {
 
             <div className="steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: "var(--border-subtle)", border: "1px solid var(--border-subtle)", borderRadius: "12px", overflow: "hidden" }}>
               {[
-                { n: "01", title: "Paste your repo", desc: "Any public GitHub URL. No account needed. Works with Lovable, Bolt, v0, Cursor, Replit — anything.", icon: GitBranch },
-                { n: "02", title: "AI scans everything", desc: "Clones, reads every file, finds hardcoded secrets, injection risks, missing auth, and broken logic.", icon: Terminal },
-                { n: "03", title: "Get proof + fix", desc: "Health score, real exploits demonstrated, and one-click PRs that close each vulnerability permanently.", icon: Shield },
+                { n: "01", title: "Paste your repo", desc: "Any public GitHub URL. No signup needed. Works with Lovable, Bolt, v0, Cursor, Replit — anything built with AI.", icon: GitBranch },
+                { n: "02", title: "Understand what you built", desc: "Greenlit explains your app architecture in plain English. Like a CTO explaining your app to you over coffee.", icon: Terminal },
+                { n: "03", title: "Fix with one click", desc: "Copy the AI-generated fix prompt, paste into Cursor or your IDE, done. No security expertise needed.", icon: Shield },
               ].map((step) => (
                 <div
                   key={step.n}
@@ -537,6 +537,9 @@ export default function LandingPage() {
             <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "var(--text-tertiary)" }}>
               No credit card · Public repos always free · Cancel anytime
             </p>
+            <div style={{ marginTop: "2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+              <span style={{ fontSize: "0.6875rem", color: "var(--text-tertiary)", letterSpacing: "0.05em" }}>Built in India 🇮🇳 · For the world</span>
+            </div>
           </div>
         </section>
 

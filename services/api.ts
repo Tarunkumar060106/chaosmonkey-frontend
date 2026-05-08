@@ -83,6 +83,15 @@ export async function untrackRepo(repoId: string): Promise<void> {
   if (!res.ok) throw new Error("Failed to untrack repo");
 }
 
+export async function toggleMonitor(repoId: string, enabled: boolean): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/repos/${repoId}/monitoring`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ enabled }),
+  });
+  if (!res.ok) throw new Error("Failed to toggle monitoring");
+}
+
 export async function triggerScan(repoId: string): Promise<{ scan_id: string }> {
   const res = await fetch(`${BASE_URL}/api/repos/${repoId}/scan`, {
     method: "POST",

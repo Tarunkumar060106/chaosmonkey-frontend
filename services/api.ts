@@ -141,11 +141,16 @@ export async function fetchGitHubUser() {
 
 // ── Auto-Fix & Chat ───────────────────────────
 
-export async function generateAutoFixPR(repoName: string, vulnerabilities: Record<string, unknown>[]) {
+export async function generateAutoFixPR(repoName: string, vulnerabilities: Record<string, unknown>[], scanId?: string) {
   const res = await fetch(`${BASE_URL}/api/repos/autofix`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ repo_name: repoName, vulnerabilities }),
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      repo_name: repoName,
+      vulnerabilities,
+      scan_id: scanId,
+      github_token: getToken(),  // user's token so PR is created on their behalf
+    }),
   });
   if (!res.ok) throw new Error("Failed to generate Auto-Fix PR");
   return res.json();
